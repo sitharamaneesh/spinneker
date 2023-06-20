@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opsmx-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opsmx-nginx
+  template:
+    metadata:
+      labels:
+        app: opsmx-nginx
+    spec:
+      containers:
+        - image: docker.io/vijayendarr/mynginx
+          imagePullPolicy: Always
+          name: nginx
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 9090
+              name: prometheus
+              protocol: TCP 
+---           
+apiVersion: v1
+kind: Service
+metadata:
+  name: opsmx-nginx-services
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: canary
+    - port: 9090
+      targetPort: 9090
+      protocol: TCP
+      name: reports
+  selector:
+    app: opsmx-nginx
